@@ -1,0 +1,162 @@
+<shared-header></shared-header>
+<div class="flex w-2/3 mx-auto my-8">
+  <p class="text-black text-2xl font-medium font-rubik">Каталог товаров</p>
+</div>
+<!-- category buttons -->
+<div class="flex w-2/3 mx-auto gap-4 mb-6">
+  <div>
+    <button class="w-[74px] h-8 bg-[#84adff] rounded-md text-white ">Новые</button>
+  </div>
+  <div class="content-center">
+    <button
+      class="text-[#115efb] text-base font-rubik font-normal border-b-2 border-dashed border-[#115EFB]">Популярные</button>
+  </div>
+  <div class="content-center">
+    <button
+      class="text-[#115efb] text-base font-rubik font-normal border-b-2 border-dashed border-[#115EFB]">Подешевле</button>
+  </div>
+  <div class="content-center">
+    <button
+      class="text-[#115efb] text-base font-rubik font-normal border-b-2 border-dashed border-[#115EFB]">Подороже</button>
+  </div>
+</div>
+<!-- catalog container -->
+<div class="flex w-2/3 mx-auto mb-6">
+  <!-- products -->
+  <div class="grid grid-cols-3 gap-5">
+
+    <!-- product -->
+    <!-- white-bg -->
+    <div *ngFor="let product of products" class="
+        p-3
+        transition ease-in-out delay-100 cursor-pointer
+        hover:bg-white
+        hover:shadow-md
+        hover:-translate-y-1
+        hover:scale-105
+        hover:rounded-[28px]
+        hover:text-[#115efb]
+        overflow-hidden
+        transform-gpu
+        relative
+        z-10
+        ">
+      <!-- product-content -->
+      <div class="flex flex-col h-full">
+        <!-- product-bg -->
+        <div class="flex flex-col bg-[#eceff3] rounded-[20px] border-none content-center h-60">
+          <!-- tag -->
+          <div class="text-end p-2">
+            <span *ngIf="product.status != ''" class="text-white text-xs font-medium font-rubik p-2 rounded-full"
+              [ngClass]="product.status == 'Хит' ? 'bg-[#ff60c3]' : 'bg-[#00e398]'">
+              {{product.status}} </span>
+          </div>
+          <!-- img -->
+          <div>
+            <img class="mx-auto object-contain h-40" [src]="product.src" alt="">
+          </div>
+        </div>
+        <!-- product-info -->
+        <div class="mb-2 flex-grow ">
+          <p class="text-black text-xl font-medium font-rubik"> {{product.price}} ₽</p>
+          <p class="font-rubik text-base">{{product.description}}</p>
+          <!-- rating -->
+          <div *ngIf="product.rating != ''" class="flex gap-2">
+            <div class="content-center">
+              <img src="/assets/icons/star.svg" alt="star">
+            </div>
+            <div>
+              <p class="text-[#474747] text-base  font-normal font-rubik">{{product.rating}}</p>
+            </div>
+          </div>
+        </div>
+        <!-- button -->
+        <div class="mt-auto">
+          <div class="h-12 w-2/3 py-3 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex">
+            <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
+            <p class="text-white text-base font-medium font-rubik leading-normal">В корзину</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- filters -->
+  <div class="flex flex-col w-1/4 gap-5">
+    <!-- title -->
+    <div>
+      <p class="text-black text-xl font-medium font-rubik leading-7">Цена, ₽</p>
+    </div>
+    <!-- price-input -->
+    <div class="flex flex-col">
+      <div class="flex gap-2 mb-4">
+        <div class="flex flex-col">
+          <label>От</label>
+          <input type="text" class="h-10 px-2 py-2 w-24 text-[#b9b9b9] text-base font-rubik placeholder:text-[#b9b9b9]
+        bg-[#e4e7eb] rounded-lg justify-start items-center" [(ngModel)]="minValue" (input)="updateMinValue()" />
+        </div>
+
+        <div class="flex flex-col">
+          <label>До</label>
+          <input type="text" class="h-10 px-2 py-2 w-24 text-[#b9b9b9] text-base font-rubik placeholder:text-[#b9b9b9]
+        bg-[#e4e7eb] rounded-lg justify-start items-center" [(ngModel)]="maxValue" (input)="updateMaxValue()" />
+        </div>
+      </div>
+
+      <!-- Dual-handle price slider -->
+      <div class="relative h-1 bg-gray-300 rounded-lg">
+        <div class="absolute h-1 bg-[#00e398] rounded-lg"
+          [ngStyle]="{ left: calculatePercentage(minValue) + '%', right: 100 - calculatePercentage(maxValue) + '%' }">
+        </div>
+
+        <!-- Left handle (minValue) -->
+        <input type="range" [min]="minLimit" [max]="maxLimit" [(ngModel)]="minValue" (input)="updateMinValue()"
+          class="absolute w-full h-2 bg-transparent appearance-none pointer-events-auto" style="z-index: 2;" />
+
+        <!-- Right handle (maxValue) -->
+        <input type="range" [min]="minLimit" [max]="maxLimit" [(ngModel)]="maxValue" (input)="updateMaxValue()"
+          class="absolute w-full h-2 bg-transparent appearance-none pointer-events-auto" style="z-index: 1;" />
+      </div>
+    </div>
+
+
+
+
+    <!-- Тип товара -->
+    <div>
+      <p class="text-black text-xl font-medium font-rubik leading-7">Тип товара</p>
+    </div>
+    <!-- product-types -->
+    <div class="flex flex-col">
+      <label *ngFor="let type of typeFilters">
+        <input type="checkbox" class="h-4 w-4 invert checked:invert-0 opacity-10 checked:opacity-100 mr-1" />{{type}}
+      </label>
+    </div>
+    <!-- Цвет -->
+    <div>
+      <p class="text-black text-xl font-medium font-rubik leading-7">Цвет</p>
+    </div>
+    <div class="flex flex-col">
+      <label *ngFor="let color of colorFilters">
+        <input type="checkbox" class="h-4 w-4 invert checked:invert-0 opacity-10 checked:opacity-100 mr-1 " /> {{color}}
+      </label>
+    </div>
+    <!-- buttons -->
+    <div class="flex">
+      <button class="h-12 w-1/2 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex">
+        <div class="text-white text-base font-medium font-rubik leading-normal">Показать</div>
+      </button>
+      <button class="h-12 w-1/2 bg-white rounded-lg justify-center items-center gap-3 inline-flex">
+        <div class="text-[#ff60c3] text-base font-medium font-rubik leading-normal">Сбросить</div>
+      </button>
+    </div>
+
+  </div>
+
+
+
+</div>
+
+<shared-footer></shared-footer>
