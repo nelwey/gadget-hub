@@ -21,13 +21,13 @@
   </div>
 </div>
 <!-- catalog container -->
-<div class="flex w-2/3 mx-auto mb-6">
-  <!-- products -->
-  <div class="grid grid-cols-3 gap-5">
-
-    <!-- product -->
-    <!-- white-bg -->
-    <div *ngFor="let product of products" class="
+<div class="flex w-2/3 mx-auto mb-10">
+  <div class="flex flex-col gap-5">
+    <!-- products -->
+    <div class="grid grid-cols-3 gap-5">
+      <!-- product -->
+      <!-- white-bg -->
+      <div *ngFor="let product of products" class="
         p-3
         transition ease-in-out delay-100 cursor-pointer
         hover:bg-white
@@ -41,50 +41,76 @@
         relative
         z-10
         ">
-      <!-- product-content -->
-      <div class="flex flex-col h-full">
-        <!-- product-bg -->
-        <div class="flex flex-col bg-[#eceff3] rounded-[20px] border-none content-center h-60">
-          <!-- tag -->
-          <div class="text-end p-2">
-            <span *ngIf="product.status != ''" class="text-white text-xs font-medium font-rubik p-2 rounded-full"
-              [ngClass]="product.status == 'Хит' ? 'bg-[#ff60c3]' : 'bg-[#00e398]'">
-              {{product.status}} </span>
-          </div>
-          <!-- img -->
-          <div>
-            <img class="mx-auto object-contain h-40" [src]="product.src" alt="">
-          </div>
-        </div>
-        <!-- product-info -->
-        <div class="mb-2 flex-grow ">
-          <p class="text-black text-xl font-medium font-rubik"> {{product.price}} ₽</p>
-          <p class="font-rubik text-base">{{product.description}}</p>
-          <!-- rating -->
-          <div *ngIf="product.rating != ''" class="flex gap-2">
-            <div class="content-center">
-              <img src="/assets/icons/star.svg" alt="star">
+        <!-- product-content -->
+        <div class="flex flex-col h-full">
+          <!-- product-bg -->
+          <div class="flex flex-col bg-[#eceff3] rounded-[20px] border-none content-center h-60">
+            <!-- tag -->
+            <div class="text-end p-2">
+              <span *ngIf="product.status != ''" class="text-white text-xs font-medium font-rubik p-2 rounded-full"
+                [ngClass]="product.status == 'Хит' ? 'bg-[#ff60c3]' : 'bg-[#00e398]'">
+                {{product.status}} </span>
             </div>
+            <!-- img -->
             <div>
-              <p class="text-[#474747] text-base  font-normal font-rubik">{{product.rating}}</p>
+              <img class="mx-auto object-contain h-40" [src]="product.src" alt="">
+            </div>
+          </div>
+          <!-- product-info -->
+          <div class="mb-2 flex-grow ">
+            <p class="text-black text-xl font-medium font-rubik"> {{product.price}} ₽</p>
+            <p class="font-rubik text-base">{{product.description}}</p>
+            <!-- rating -->
+            <div *ngIf="product.rating != ''" class="flex gap-2">
+              <div class="content-center">
+                <img src="/assets/icons/star.svg" alt="star">
+              </div>
+              <div>
+                <p class="text-[#474747] text-base  font-normal font-rubik">{{product.rating}}</p>
+              </div>
+            </div>
+          </div>
+          <!-- button -->
+          <div class="mt-auto">
+            <div class="h-12 w-2/3 py-3 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex">
+              <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
+              <p class="text-white text-base font-medium font-rubik leading-normal">В корзину</p>
             </div>
           </div>
         </div>
-        <!-- button -->
-        <div class="mt-auto">
-          <div class="h-12 w-2/3 py-3 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex">
-            <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
-            <p class="text-white text-base font-medium font-rubik leading-normal">В корзину</p>
-          </div>
-        </div>
+
       </div>
-
     </div>
+    <!-- pagination -->
+    <div class="flex justify-center">
+      <ol class="flex justify-center text-xs font-medium space-x-1">
 
+        <li>
+          <a href="javascript:void(0);" class="block w-8 h-8 text-center border  rounded-full bg-[#115EFB] text-white leading-8"> 1 </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0);" class="block w-8 h-8 text-center rounded leading-8"> 2</a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0);" class="block w-8 h-8 text-center rounded leading-8"> 3 </a>
+        </li>
+
+        <li>
+          <a href="javascript:void(0);" class="block w-8 h-8 text-center rounded leading-8"> 4 </a>
+        </li>
+
+        <li class="content-center">
+          <a href="javascript:void(0);">
+            <img src="./assets/icons/right-arrow.svg" alt="right_arrow" class="size-4">
+          </a>
+        </li>
+      </ol>
+    </div>
   </div>
-
   <!-- filters -->
-  <div class="flex flex-col w-1/4 gap-5">
+  <div class="flex flex-col w-1/4 gap-5 px-3">
     <!-- title -->
     <div>
       <p class="text-black text-xl font-medium font-rubik leading-7">Цена, ₽</p>
@@ -104,26 +130,19 @@
         bg-[#e4e7eb] rounded-lg justify-start items-center" [(ngModel)]="maxValue" (input)="updateMaxValue()" />
         </div>
       </div>
-
       <!-- Dual-handle price slider -->
       <div class="relative h-1 bg-gray-300 rounded-lg">
         <div class="absolute h-1 bg-[#00e398] rounded-lg"
           [ngStyle]="{ left: calculatePercentage(minValue) + '%', right: 100 - calculatePercentage(maxValue) + '%' }">
         </div>
-
         <!-- Left handle (minValue) -->
         <input type="range" [min]="minLimit" [max]="maxLimit" [(ngModel)]="minValue" (input)="updateMinValue()"
           class="absolute w-full h-2 bg-transparent appearance-none pointer-events-auto" style="z-index: 2;" />
-
         <!-- Right handle (maxValue) -->
         <input type="range" [min]="minLimit" [max]="maxLimit" [(ngModel)]="maxValue" (input)="updateMaxValue()"
           class="absolute w-full h-2 bg-transparent appearance-none pointer-events-auto" style="z-index: 1;" />
       </div>
     </div>
-
-
-
-
     <!-- Тип товара -->
     <div>
       <p class="text-black text-xl font-medium font-rubik leading-7">Тип товара</p>
@@ -152,11 +171,8 @@
         <div class="text-[#ff60c3] text-base font-medium font-rubik leading-normal">Сбросить</div>
       </button>
     </div>
-
   </div>
-
-
-
 </div>
+
 
 <shared-footer></shared-footer>

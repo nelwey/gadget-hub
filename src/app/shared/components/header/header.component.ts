@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,15 +11,30 @@ import { Router } from '@angular/router';
   templateUrl: './header.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HeaderComponent {
-  constructor(private router: Router  ) {}
-  public goToLogin(){
+export class HeaderComponent implements OnInit {
+  public isLoggedIn: boolean = false;
+  public currentRoute: string = '';
+  constructor(private router: Router) {
+    this.router.events.subscribe(() => {
+      this.currentRoute = this.router.url;
+    });
+  }
+  public goToLogin() {
     this.router.navigateByUrl('/login');
   }
-  public goToHome(){
+  public goToHome() {
     this.router.navigateByUrl('/home');
   }
-  public goToCatalog(){
+  public goToCatalog() {
     this.router.navigateByUrl('/catalog');
+  }
+
+  ngOnInit(): void {
+    this.isLoggedIn = sessionStorage.getItem('loggedIn') === 'true';
+  }
+
+  logout(): void {
+    sessionStorage.removeItem('loggedIn');
+    this.router.navigate(['/login']);
   }
 }
