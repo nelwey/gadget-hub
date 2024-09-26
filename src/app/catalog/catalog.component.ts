@@ -1,13 +1,18 @@
+import { Component, OnInit } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+import { ProductService } from '../services/product.service';
+import { Product } from '../models/product.model';
+import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+
 import { HeaderComponent } from '../shared/components/header/header.component';
 import { FooterComponent } from '../shared/components/footer/footer.component';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'catalog',
   standalone: true,
   imports: [
+    HttpClientModule,
     CommonModule,
     HeaderComponent,
     FooterComponent,
@@ -15,27 +20,32 @@ import { FormsModule } from '@angular/forms';
   ],
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CatalogComponent {
 
-  public products: any[] = [
-    { status: "Хит", src: "/assets/images/image8.png", price: 102099, description: "Смартфон 256 ГБ розовый", rating: "5" },
-    { status: "Новинка", src: "/assets/images/image5.png", price: 27990, description: "Умный робот-друг", rating: "" },
-    { status: "Новинка", src: "/assets/images/image6.png", price: 2000, description: "Часы с GPS трекером, розовый", rating: "4,8" },
+export class CatalogComponent implements OnInit{
+  public products: Product[] = []
 
-    { status: "Новинка", src: "/assets/images/image4.png", price: 15199, description: "Смарт-часы, черные", rating: "4" },
-    { status: "Новинка", src: "/assets/images/image9.png", price: 43999, description: "Смартфон 256 ГБ розовый", rating: "4,2" },
-    { status: "Хит", src: "/assets/images/image60.png", price: 4990, description: "Беспроводная акустика, голубой", rating: "4,8" },
+  constructor(private productService: ProductService) {}
 
-    { status: "Хит", src: "/assets/images/image2.png", price: 10590, description: "Аппаратный ключ аутентификации...", rating: "5" },
-    { status: "Хит", src: "/assets/images/image1.png", price: 49990, description: "Шлем виртуальной реальности 128...", rating: "4,8" },
-    { status: "", src: "/assets/images/image10.png", price: 2299, description: "Фитнес-браслет, розовый", rating: "" },
-  ]
+  ngOnInit(): void {
+    this.getProducts();
+  }
+  getProducts(): void {
+    this.productService.getProducts().subscribe({
+      next:(products: Product[]) => {
+        this.products = products;
+      },
+      error: (e) => {
+        console.error('Error fetching products:', e);
+      }
+    });
+  }
   minLimit: number = 200;
   maxLimit: number = 300000;
   minValue: number = 2990;
   maxValue: number = 167890;
+
+  selectedProduct: any = null;
 
   public typeFilters: string[] = [
     "Смартфоны", "Фитнес браслеты", "Портативная акустика", "Очки виртуальной реальности", "Электротранспорт", "Умные часы"
@@ -43,7 +53,7 @@ export class CatalogComponent {
   public colorFilters: string[] = [
     "Красный", "Оранжевый", "Желтый", "Зеленый", "Голубой", "Синий", "Фиолетовый"
   ];
-  // Validates and updates the minimum value
+
   validateMinValue() {
     if (this.minValue < this.minLimit) {
       this.minValue = this.minLimit;
@@ -72,5 +82,13 @@ export class CatalogComponent {
 
   calculatePercentage(value: number): number {
     return ((value - this.minLimit) / (this.maxLimit - this.minLimit)) * 100;
+  }
+
+  openModal(product: any) {
+    this.selectedProduct = product;
+  }
+
+  closeModal() {
+    this.selectedProduct = null;
   }
 }

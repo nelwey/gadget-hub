@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'shared-header',
@@ -9,12 +10,12 @@ import { Router } from '@angular/router';
     CommonModule,
   ],
   templateUrl: './header.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements OnInit {
   public isLoggedIn: boolean = false;
   public currentRoute: string = '';
-  constructor(private router: Router) {
+
+  constructor(public authService: AuthService, private router: Router) {
     this.router.events.subscribe(() => {
       this.currentRoute = this.router.url;
     });
@@ -30,11 +31,11 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.isLoggedIn = sessionStorage.getItem('loggedIn') === 'true';
+    this.isLoggedIn = this.authService.isLoggedIn();
   }
 
   logout(): void {
-    sessionStorage.removeItem('loggedIn');
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
