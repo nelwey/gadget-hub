@@ -16,18 +16,20 @@
       </div>
 
       <div class="flex" *ngIf="isLoggedIn">
-        <button
+        <button (click)="goToCart()"
           class="px-2 py-3 gap-3 bg-transparent text-gray-800 font-bold rounded inline-flex items-center hover:bg-[#f2f5f9]">
           <img src="/assets/icons/profile.svg" alt="catalog_icon">
           <span class="text-[#115efb] text-base font-medium font-rubik">Корзина</span>
-          <div class="self-center w-6 h-6 bg-[#ff60c3] rounded-full"></div>
+          <div *ngIf="cartQuantity > 0" class="self-center w-6 h-6 bg-[#ff60c3] rounded-full ">
+            <span class="text-white font-normal">{{cartQuantity }}</span>
+          </div>
         </button>
 
       </div>
 
       <div *ngIf="isLoggedIn">
         <button (click)="logout()"
-          class="px-5 py-3 gap-3 bg-transparent text-gray-800 font-bold rounded inline-flex items-center hover:bg-[#f2f5f9]">
+          class="px-5 py-3 gap-3 bg-transparent text-gray-800 font-bold rounded inline-flex items-center hover:bg-[#f2f5f9] focus:border-[#84adff]">
           <img src="/assets/icons/profile.svg" alt="profile_icon">
           <span class="text-[#115efb] text-base font-medium font-rubik">Выйти</span>
         </button>

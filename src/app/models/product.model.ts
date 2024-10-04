@@ -6,8 +6,8 @@ export interface Product {
   src: string;
   price: number;
   title: string;
-  rating: string;
+  rating?: string;
   category?: string;
-  quantity?: number;
+  stock?: number;
   inStock?: boolean;
 }

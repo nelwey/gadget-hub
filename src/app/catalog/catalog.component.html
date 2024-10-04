@@ -27,7 +27,7 @@
     <div class="grid grid-cols-3 gap-5">
       <!-- product -->
       <!-- white-bg -->
-      <div *ngFor="let product of products" (click)="openModal(product)" class="
+      <div *ngFor="let product of products" class="
         p-3
         transition ease-in-out delay-100 cursor-pointer
         hover:bg-white
@@ -52,9 +52,7 @@
                 {{product.status}} </span>
             </div>
             <!-- img -->
-            <div>
-              <img class="mx-auto object-contain h-40" [src]="product.src" alt="">
-            </div>
+            <img (click)="openModal(product)" class="mx-auto object-contain h-40" [src]="product.src" alt="">
           </div>
           <!-- product-info -->
           <div class="mb-2 flex-grow ">
@@ -70,11 +68,35 @@
               </div>
             </div>
           </div>
-          <!-- button -->
-          <div class="mt-auto">
-            <button class="h-12 w-2/3 py-3 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex">
+
+          <div *ngIf="isInCart(product)" class="flex justify-between items-center">
+
+            <button (click)="goToCart()"
+              class="py-2 px-4 bg-[#FF60C3] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#cd3c96]">
               <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
-              <p class="text-white text-base font-medium font-rubik leading-normal">В корзину</p>
+              <p class="text-white text-sm font-medium font-rubik leading-normal">1 шт.</p>
+            </button>
+
+            <button (click)="decreaseQuantity(product)"
+              class="text-[#115efb] size-6 bg-[#e4e7eb] rounded hover:bg-[#115efb] hover:text-white font-medium  ">
+              -
+            </button>
+
+            <p class="text-black text-base font-normal font-inter leading-[30px]">
+              {{getQuantity(product)}}
+            </p>
+
+            <button (click)="increaseQuantity(product)"
+              class="text-[#115efb] size-6 bg-[#e4e7eb] rounded hover:bg-[#115efb] hover:text-white">
+              <span>+</span>
+            </button>
+          </div>
+
+          <div *ngIf="!isInCart(product)" class="mt-auto">
+            <button (click)="addToCart(product)"
+              class="w-2/3 py-2 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#0b3589]">
+              <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
+              <p class="text-white text-sm font-medium font-rubik leading-normal">В корзину</p>
             </button>
           </div>
         </div>
@@ -165,7 +187,8 @@
     </div>
     <!-- buttons -->
     <div class="flex">
-      <button class="h-12 w-1/2 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex">
+      <button
+        class="h-12 w-1/2 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#0b3589] focus:border-[#84adff]">
         <div class="text-white text-base font-medium font-rubik leading-normal">Показать</div>
       </button>
       <button class="h-12 w-1/2 bg-white rounded-lg justify-center items-center gap-3 inline-flex">
@@ -178,7 +201,7 @@
 
 
 <!-- Modal -->
-<div *ngIf="selectedProduct" class="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50 ">
+<div *ngIf="showModal" class="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50 ">
 
   <div class="bg-white w-[850px] h-[520px] p-14 rounded-[40px] shadow-lg relative">
 
@@ -191,36 +214,64 @@
       <div class="flex gap-4">
         <!-- product -->
         <div class="bg-[#e4e7eb] w-2/5 rounded-[20px] content-center h-80 p-5">
-          <img [src]="selectedProduct.src" alt="product image" class="object-contain mx-auto h-60">
+          <img [src]="selectedProduct!.src" alt="product image" class="object-contain mx-auto h-60">
         </div>
         <!-- product desc -->
         <div class="flex flex-col gap-3 w-3/5">
-          <p class="text-black text-xl font-medium font-rubik leading-[41.60px]">{{ selectedProduct.title }}</p>
-          <div *ngIf="selectedProduct.rating != ''" class="flex gap-2">
+          <p class="text-black text-2xl font-medium font-rubik leading-[41.60px]">{{ selectedProduct!.title }}</p>
+          <div *ngIf="selectedProduct!.rating != ''" class="flex gap-1">
             <div class="content-center">
               <img src="/assets/icons/star.svg" alt="star">
             </div>
             <div>
-              <p class="text-[#474747] text-base  font-normal font-rubik">{{selectedProduct.rating}}</p>
+              <p class="text-[#474747] text-sm font-normal font-rubik">{{selectedProduct!.rating}}</p>
             </div>
           </div>
-          <p class="text-base text-[#474747] font-normal font-rubik leading-normal">{{selectedProduct.description}}</p>
+          <p class="text-sm text-[#474747] font-normal font-rubik leading-normal">{{selectedProduct!.description}}</p>
           <p class="text-black text-lg font-medium font-rubik">Характеристики</p>
           <div>
-            <div *ngFor="let charasteristic of selectedProduct.characteristics | keyvalue">
-              {{charasteristic.key}}: {{charasteristic.value}}
-            </div>
+            <p class="text-sm font-inter text-[#474747]"
+              *ngFor="let charasteristic of selectedProduct!.characteristics | keyvalue">
+              <span class="font-bold">{{charasteristic.key}}</span>: {{charasteristic.value}}
+            </p>
           </div>
         </div>
 
       </div>
       <div class="flex flex-col text-end">
-        <p class="text-black text-xl font-medium font-rubik leading-[41.60px]">{{selectedProduct.price}} ₽</p>
-        <div class="mt-auto">
-          <button class="h-12 px-5 py-2 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex">
+        <p class="text-black text-xl font-medium font-rubik leading-[41.60px]">{{selectedProduct!.price}} ₽</p>
+
+        <div class="flex justify-end items-center gap-6">
+
+          <div class="flex gap-6 items-center" *ngIf="isInCart(selectedProduct!)">
+
+            <button (click)="decreaseQuantity(selectedProduct!)" class="text-[#115efb] size-6 bg-[#e4e7eb] rounded hover:bg-[#115efb] hover:text-white">
+              <span>-</span>
+            </button>
+
+            <p class="text-black text-base font-normal font-inter leading-[30px]">
+              {{getQuantity(selectedProduct!)}}
+            </p>
+
+            <button (click)="increaseQuantity(selectedProduct!)" class="text-[#115efb] size-6 bg-[#e4e7eb] rounded hover:bg-[#115efb] hover:text-white">
+              <span>+</span>
+            </button>
+
+            <button (click)="goToCart()"
+              class="h-10 px-5 py-1 bg-[#ff60c3] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#cd3c96]">
+              <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
+              <p class="text-white text-base font-medium font-rubik leading-normal">
+                В корзине 1 шт.
+              </p>
+            </button>
+          </div>
+
+          <button (click)="addToCart()" *ngIf="!isInCart(selectedProduct!)"
+            class="h-10 px-5 py-1 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#0b3589]">
             <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
             <p class="text-white text-base font-medium font-rubik leading-normal">В корзину</p>
           </button>
+
         </div>
       </div>
 
