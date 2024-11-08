@@ -13,9 +13,12 @@ export class CartService {
   private cartQuantitySource = new BehaviorSubject<number>(0);
   currentCartQuantity = this.cartQuantitySource.asObservable();
 
-  getCart(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl);
+  getCart(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
   }
+  // getCart(): Observable<{ productId: number; quantity: number }[]> {
+  //   return this.http.get<{ productId: number; quantity: number }[]>(this.apiUrl);
+  // }
   addToCart(productId: number, quantity: number, price: number): Observable<any> {
     const newCartItem = { productId, quantity };
     this.cart.push(newCartItem);
@@ -54,5 +57,15 @@ export class CartService {
     updatedQuantity = this.cart.reduce((total, product) => total + product.quantity, 0);
     this.cartQuantitySource.next(updatedQuantity);
     console.log("totalCart: ", this.cart);
+  }
+  loadCart(): void {
+    this.getCart().subscribe(cartItems => {
+      this.cart = cartItems.map(item => ({ productId: item.id, quantity: item.quantity }));
+      this.updateCartQuantityTotal();
+    });
+  }
+  clearCart(): void {
+    this.cart = [];
+    this.updateCartQuantityTotal();
   }
 }

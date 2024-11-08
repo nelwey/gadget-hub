@@ -10,4 +10,5 @@ export interface Product {
   category?: string;
   stock?: number;
   inStock?: boolean;
+  color?: string;
 }

@@ -8,6 +8,8 @@ import { HeaderComponent } from '../shared/components/header/header.component';
 import { FooterComponent } from '../shared/components/footer/footer.component';
 import { CartService } from '../services/cart.service';
 import { Router } from '@angular/router';
+import { Filter } from './interfaces/filters';
+import { Color } from './interfaces/colors';
 
 @Component({
   selector: 'catalog',
@@ -32,20 +34,128 @@ export class CatalogComponent implements OnInit {
   public productQuantity: number = 1;
   public showModal: boolean = false;
 
+  public itemsPerPage: number = 9;
+  public currentPage: number = 1;
+  public paginatedProducts: Product[] = [];
+  public showPrevButton: boolean = false;
+
+  public selectedColors: string[] = [];
+  public filteredProducts: Product[] = [];
+
+  public selectedTypes: string[] = [];
+
   ngOnInit(): void {
     this.getProducts();
     this.loadCart();
   }
+
   getProducts(): void {
     this.productService.getProducts().subscribe({
       next: (products: Product[]) => {
         this.products = products;
+        this.filteredProducts = [...products]; // Display all products initially
+        this.updatePaginatedProducts();
       },
-      error: (e) => {
-        console.error('Error fetching products:', e);
-      }
+      error: (e) => console.error('Error fetching products:', e),
     });
   }
+
+
+  filterByType(): void {
+    if (this.selectedTypes.length) {
+      this.filteredProducts = this.products.filter(product =>
+        product.category && this.selectedTypes.includes(product.category)
+      );
+    } else {
+      // Show all products if no type is selected
+      this.filteredProducts = [...this.products];
+    }
+    this.currentPage = 1; // Reset to the first page when applying a new filter
+    this.updatePaginatedProducts();
+  }
+
+  filterProducts(): void {
+    this.filteredProducts = this.products.filter(product => {
+      const matchesColor = !this.selectedColors.length || (product.color && this.selectedColors.includes(product.color));
+      const matchesType = !this.selectedTypes.length || (product.category && this.selectedTypes.includes(product.category));
+      return matchesColor && matchesType;
+    });
+    this.currentPage = 1; // Reset to first page when filters change
+    this.updatePaginatedProducts();
+  }
+
+  toggleColorSelection(color: string): void {
+    if (this.selectedColors.includes(color)) {
+      this.selectedColors = this.selectedColors.filter(c => c !== color);
+    } else {
+      this.selectedColors.push(color);
+    }
+    this.filterProducts();
+  }
+
+  toggleTypeSelection(type: string): void {
+    if (this.selectedTypes.includes(type)) {
+      this.selectedTypes = this.selectedTypes.filter(t => t !== type);
+    } else {
+      this.selectedTypes.push(type);
+    }
+    this.filterProducts();
+  }
+
+
+
+  // toggleColor(colorValue: string): void {
+  //   if (this.selectedColors.includes(colorValue)) {
+  //     this.selectedColors = this.selectedColors.filter(color => color !== colorValue);
+  //   } else {
+  //     this.selectedColors.push(colorValue);
+  //   }
+  //   this.filterByColor();
+  // }
+
+  // filterByColor(): void {
+  //   if (this.selectedColors.length) {
+  //     this.filteredProducts = this.products.filter(product =>
+  //       product.color && this.selectedColors.includes(product.color)
+  //     );
+  //   } else {
+  //     // Show all products if no color is selected
+  //     this.filteredProducts = [...this.products];
+  //   }
+  //   this.currentPage = 1; // Reset to first page when applying a new filter
+  //   this.updatePaginatedProducts();
+  // }
+
+
+
+  updatePaginatedProducts(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedProducts = this.filteredProducts.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    this.currentPage = page;
+    this.updatePaginatedProducts();
+    this.showPrevButton = this.currentPage > 1;
+  }
+
+  nextPage(): void {
+    if (this.currentPage * this.itemsPerPage < this.filteredProducts.length) {
+      this.currentPage++;
+      this.updatePaginatedProducts();
+      this.showPrevButton = true;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePaginatedProducts();
+      this.showPrevButton = this.currentPage > 1;
+    }
+  }
+
   loadCart(): void {
     this.cartService.getCart().subscribe((cartProducts) => {
       this.cartProducts = cartProducts;
@@ -56,11 +166,25 @@ export class CatalogComponent implements OnInit {
   minValue: number = 2990;
   maxValue: number = 167890;
 
-  public typeFilters: string[] = [
-    "Смартфоны", "Фитнес браслеты", "Портативная акустика", "Очки виртуальной реальности", "Электротранспорт", "Умные часы"
+  public typeFilters: Filter[] = [
+    { type: "Смартфоны", value: 'Smartphones' },
+    { type: "Портативная акустика", value: 'PortableAcoustics' },
+    { type: "Очки виртуальной реальности", value: 'VirtualRealityGlasses' },
+    { type: "Умные часы", value: 'SmartWatches' },
+    { type: "Другое", value: 'Other' },
+    { type: "Внешний Аккумулятор", value: 'ExternalBattery' },
+    { type: "Наушники", value: 'Headphones' },
   ];
-  public colorFilters: string[] = [
-    "Красный", "Оранжевый", "Желтый", "Зеленый", "Голубой", "Синий", "Фиолетовый"
+  public colorFilters: Color[] = [
+    { color: "Красный", value: 'red' },
+    { color: "Желтый", value: 'yellow' },
+    { color: "Белый", value: 'white' },
+    { color: "Зеленый", value: 'green' },
+    { color: "Голубой", value: 'lightblue' },
+    { color: "Синий", value: 'blue' },
+    { color: "Фиолетовый", value: 'purple' },
+    { color: "Розовый", value: 'pink' },
+    { color: "Чёрный", value: 'black' }
   ];
 
   validateMinValue() {

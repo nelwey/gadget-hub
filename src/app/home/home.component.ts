@@ -21,10 +21,10 @@ export class HomeComponent {
   public hitItems: any[] = [
     { status: "Хит", src: "/assets/images/image1.png", price: 49990, description: "Шлем виртуальной реальности 128...", rating: "4,8" },
     { status: "Хит", src: "/assets/images/image2.png", price: 10590, description: "Аппаратный ключ аутентификации...", rating: "5" },
-    { status: "Хит", src: "/assets/images/image61.png", price: 4990, description: "Беспроводная акустика, бежевый", rating: "5" },
+    { status: "Хит", src: "/assets/images/image10.png", price: 4990, description: "Беспроводная акустика, бежевый", rating: "5" },
     { status: "Хит", src: "/assets/images/image1.png", price: 49990, description: "Шлем виртуальной реальности 128...", rating: "4,8" },
     { status: "Хит", src: "/assets/images/image2.png", price: 10590, description: "Аппаратный ключ аутентификации...", rating: "5" },
-    { status: "Хит", src: "/assets/images/image61.png", price: 4990, description: "Беспроводная акустика, бежевый", rating: "5" },
+    { status: "Хит", src: "/assets/images/image10.png", price: 4990, description: "Беспроводная акустика, бежевый", rating: "5" },
   ]
   public newItems: any[] = [
     { status: "Новинка", src: "/assets/images/image5.png", price: 27990, description: "Умный робот-друг", rating: "" },

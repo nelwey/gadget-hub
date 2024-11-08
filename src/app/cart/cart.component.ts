@@ -28,11 +28,31 @@ export class CartComponent implements OnInit {
   }
 
   public cartItems: any[] = [];
-
   public selectedTab: string = 'cart';
-
   public selectedProduct: Product | null = null;
 
+  public paymentMethods = [
+    { value: 'value 2', label: 'value 1' },
+    { value: 'value 1', label: 'value 2' },
+  ];
+  public selectedPaymentMethod: string = this.paymentMethods[0].value;
+
+  public selectedTypeOrder: string = "Самовывоз";
+
+  public showOrderModal:boolean = false;
+
+  onChangePaymentMethod(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.selectedPaymentMethod = target.value;
+  }
+
+  openOrderModal() {
+    this.showOrderModal = true;
+  }
+
+  closeOrderModal() {
+    this.showOrderModal = false;
+  }
   openModal(product: any) {
     this.selectedProduct = product;
   }
@@ -101,5 +121,8 @@ export class CartComponent implements OnInit {
   }
   public goToCatalog() {
     this.router.navigateByUrl('/catalog');
+  }
+  placeOrder() {
+    this.openOrderModal();
   }
 }

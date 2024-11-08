@@ -20,14 +20,15 @@
       class="text-[#115efb] text-base font-rubik font-normal border-b-2 border-dashed border-[#115EFB]">Подороже</button>
   </div>
 </div>
-<!-- catalog container -->
+
 <div class="flex w-2/3 mx-auto mb-10">
-  <div class="flex flex-col gap-5">
+  <!-- catalog container -->
+  <div class="flex flex-col w-3/4 gap-5">
     <!-- products -->
     <div class="grid grid-cols-3 gap-5">
       <!-- product -->
       <!-- white-bg -->
-      <div *ngFor="let product of products" class="
+      <div *ngFor="let product of paginatedProducts" class="
         p-3
         transition ease-in-out delay-100 cursor-pointer
         hover:bg-white
@@ -72,7 +73,7 @@
           <div *ngIf="isInCart(product)" class="flex justify-between items-center">
 
             <button (click)="goToCart()"
-              class="py-2 px-4 bg-[#FF60C3] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#cd3c96]">
+              class="py-2 px-4 bg-[#FF60C3] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#cd3c96] hover:border-blue-500 border">
               <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
               <p class="text-white text-sm font-medium font-rubik leading-normal">1 шт.</p>
             </button>
@@ -94,7 +95,7 @@
 
           <div *ngIf="!isInCart(product)" class="mt-auto">
             <button (click)="addToCart(product)"
-              class="w-2/3 py-2 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#0b3589]">
+              class="w-2/3 py-2 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#0b3589] hover:border-blue-500 border">
               <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
               <p class="text-white text-sm font-medium font-rubik leading-normal">В корзину</p>
             </button>
@@ -106,31 +107,24 @@
     <!-- pagination -->
     <div class="flex justify-center">
       <ol class="flex justify-center text-xs font-medium space-x-1">
+        <button *ngIf="showPrevButton" (click)="prevPage()">
+          <img src="./assets/icons/left-arrow.svg" alt="left_arrow" class="size-4">
+        </button>
 
-        <li>
-          <a href="javascript:void(0);"
-            class="block w-8 h-8 text-center border  rounded-full bg-[#115EFB] text-white leading-8"> 1 </a>
-        </li>
-
-        <li>
-          <a href="javascript:void(0);" class="block w-8 h-8 text-center rounded leading-8"> 2</a>
-        </li>
-
-        <li>
-          <a href="javascript:void(0);" class="block w-8 h-8 text-center rounded leading-8"> 3 </a>
-        </li>
-
-        <li>
-          <a href="javascript:void(0);" class="block w-8 h-8 text-center rounded leading-8"> 4 </a>
-        </li>
-
-        <li class="content-center">
-          <a href="javascript:void(0);">
-            <img src="./assets/icons/right-arrow.svg" alt="right_arrow" class="size-4">
+        <li *ngFor="let page of [1, 2, 3, 4]">
+          <a href="javascript:void(0);" (click)="goToPage(page)" [class.bg-[#115EFB]]="page === currentPage"
+            [class.text-white]="page === currentPage" class="block w-8 h-8 text-center border rounded-full leading-8">
+            {{ page }}
           </a>
         </li>
+
+        <button (click)="nextPage()" [disabled]="currentPage * itemsPerPage >= products.length">
+          <img src="./assets/icons/right-arrow.svg" alt="right_arrow" class="size-4">
+        </button>
       </ol>
     </div>
+
+
   </div>
   <!-- filters -->
   <div class="flex flex-col w-1/4 gap-5 px-3">
@@ -172,8 +166,9 @@
     </div>
     <!-- product-types -->
     <div class="flex flex-col">
-      <label *ngFor="let type of typeFilters">
-        <input type="checkbox" class="h-4 w-4 invert checked:invert-0 opacity-10 checked:opacity-100 mr-1" />{{type}}
+      <label *ngFor="let item of typeFilters">
+        <input type="checkbox" class="h-4 w-4 invert checked:invert-0 opacity-10 checked:opacity-100 mr-1"
+          (change)="toggleTypeSelection(item.value)" />{{item.type}}
       </label>
     </div>
     <!-- Цвет -->
@@ -181,12 +176,13 @@
       <p class="text-black text-xl font-medium font-rubik leading-7">Цвет</p>
     </div>
     <div class="flex flex-col">
-      <label *ngFor="let color of colorFilters">
-        <input type="checkbox" class="h-4 w-4 invert checked:invert-0 opacity-10 checked:opacity-100 mr-1 " /> {{color}}
+      <label *ngFor="let item of colorFilters">
+        <input type="checkbox" class="h-4 w-4 invert checked:invert-0 opacity-10 checked:opacity-100 mr-1 "
+          (change)="toggleColorSelection(item.value)" />{{item.color}}
       </label>
     </div>
     <!-- buttons -->
-    <div class="flex">
+    <!-- <div class="flex">
       <button
         class="h-12 w-1/2 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#0b3589] focus:border-[#84adff]">
         <div class="text-white text-base font-medium font-rubik leading-normal">Показать</div>
@@ -194,7 +190,7 @@
       <button class="h-12 w-1/2 bg-white rounded-lg justify-center items-center gap-3 inline-flex">
         <div class="text-[#ff60c3] text-base font-medium font-rubik leading-normal">Сбросить</div>
       </button>
-    </div>
+    </div> -->
   </div>
 </div>
 <shared-footer></shared-footer>
@@ -245,7 +241,8 @@
 
           <div class="flex gap-6 items-center" *ngIf="isInCart(selectedProduct!)">
 
-            <button (click)="decreaseQuantity(selectedProduct!)" class="text-[#115efb] size-6 bg-[#e4e7eb] rounded hover:bg-[#115efb] hover:text-white">
+            <button (click)="decreaseQuantity(selectedProduct!)"
+              class="text-[#115efb] size-6 bg-[#e4e7eb] rounded hover:bg-[#115efb] hover:text-white">
               <span>-</span>
             </button>
 
@@ -253,12 +250,13 @@
               {{getQuantity(selectedProduct!)}}
             </p>
 
-            <button (click)="increaseQuantity(selectedProduct!)" class="text-[#115efb] size-6 bg-[#e4e7eb] rounded hover:bg-[#115efb] hover:text-white">
+            <button (click)="increaseQuantity(selectedProduct!)"
+              class="text-[#115efb] size-6 bg-[#e4e7eb] rounded hover:bg-[#115efb] hover:text-white">
               <span>+</span>
             </button>
 
             <button (click)="goToCart()"
-              class="h-10 px-5 py-1 bg-[#ff60c3] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#cd3c96]">
+              class="h-10 px-5 py-1 bg-[#ff60c3] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#cd3c96] hover:border-blue-500 border">
               <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
               <p class="text-white text-base font-medium font-rubik leading-normal">
                 В корзине 1 шт.
@@ -267,7 +265,7 @@
           </div>
 
           <button (click)="addToCart()" *ngIf="!isInCart(selectedProduct!)"
-            class="h-10 px-5 py-1 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#0b3589]">
+            class="h-10 px-5 py-1 bg-[#115efb] rounded-lg justify-center items-center gap-3 inline-flex hover:bg-[#0b3589] hover:border-blue-500 border">
             <img src="/assets/icons/cart.svg" class="w-4 h-4 relative" />
             <p class="text-white text-base font-medium font-rubik leading-normal">В корзину</p>
           </button>

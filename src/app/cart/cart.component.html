@@ -26,7 +26,6 @@
           </label>
           <div class="flex flex-col py-8 border-b-2" *ngFor="let product of cartItems">
 
-
             <!-- row -->
             <div class="flex gap-4">
               <!-- checkbox -->
@@ -79,7 +78,8 @@
             </p>
             <!-- buttons -->
             <div class="flex">
-              <button (click)="goToCatalog()" class="h-12 bg-[#115efb] rounded-lg justify-center items-center inline-flex px-5">
+              <button (click)="goToCatalog()"
+                class="h-12 bg-[#115efb] rounded-lg justify-center items-center inline-flex px-5">
                 <div class="text-white text-base font-medium font-rubik leading-normal">Перейти в каталог</div>
               </button>
               <button (click)="goToHome()" class="h-12 justify-center items-center inline-flex px-5">
@@ -88,19 +88,93 @@
             </div>
           </div>
         </ng-template>
+
+        <div *ngIf="cartItems.length">
+          <p class="text-2xl font-medium font-rubik">Оформление заказа</p>
+          <div class="bg-white my-8 p-4 rounded-lg flex flex-col gap-8">
+
+            <div class="flex gap-5">
+              <div class="flex-col justify-center items-start gap-1 inline-flex w-1/4">
+                <div class="text-sm font-inter leading-[21px]">Телефон</div>
+                <input type="text" class="self-stretch px-4 py-3 bg-[#e4e7eb] rounded-lg justify-start items-center gap-2.5 inline-flex
+                hover:border-blue-500 border"  />
+              </div>
+
+
+              <div class="flex-col justify-center items-start gap-1 inline-flex w-1/4">
+                <div class="text-black text-sm font-inter leading-[21px]">E-mail</div>
+                <input type="text"
+                  class="self-stretch px-4 py-3 bg-[#e4e7eb] rounded-lg justify-start items-center gap-2.5 inline-flex hover:border-blue-500 border" />
+              </div>
+            </div>
+            <!-- radio buttons -->
+            <div class="flex gap-3">
+              <div class="flex items-center">
+                <input [(ngModel)]="selectedTypeOrder" [value]="'Самовывоз'" type="radio"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300" />
+                <label class="ms-2 text-sm">Самовывоз</label>
+              </div>
+
+              <div class="flex items-center">
+                <input [(ngModel)]="selectedTypeOrder" [value]="'Доставка'" type="radio"
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300">
+                <label class="ms-2 text-sm">Доставка</label>
+              </div>
+            </div>
+
+            <div>
+              <label class="block mb-2 text-black text-sm font-inter leading-[21px]">{{selectedTypeOrder === 'Самовывоз'
+                ? 'Способ оплаты': 'Адрес доставки'}}</label>
+
+              <select *ngIf="selectedTypeOrder === 'Самовывоз'" [(ngModel)]="selectedPaymentMethod"
+                (change)="onChangePaymentMethod($event)" class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-4
+              py-3 bg-[#e4e7eb] w-1/4">
+
+                <option [value]="null" disabled selected>Select an option</option>
+                <!-- <option *ngFor="let option of options" [value]="option.value">
+                  {{ option.label }}
+                </option> -->
+              </select>
+
+              <input type="text" *ngIf="selectedTypeOrder === 'Доставка'"
+                class="self-stretch px-4 py-3 bg-[#e4e7eb] rounded-lg justify-start items-center gap-2.5 inline-flex w-1/2" />
+
+            </div>
+
+            <div class="flex items-center">
+              <input id="default-checkbox" type="checkbox" value=""
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 ">
+              <label for="default-checkbox" class="ms-2 text-sm">Нужна упаковка</label>
+            </div>
+
+            <button type="button" (click)="placeOrder()"
+              class="w-1/5 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Оформить
+              заказ</button>
+
+          </div>
+        </div>
+
       </div>
 
       <!-- История заказов tab -->
-      <div *ngIf="selectedTab === 'history'">
-        <p>История заказов content goes here...</p>
+      <div *ngIf="selectedTab === 'history'" class="w-full">
+        <div  class="bg-white my-8 p-4 rounded-lg flex gap-3 flex-col">
+          <div class="flex border-b-2 border-[#E4E7EB] pb-3 justify-between">
+            <div>№ 567800 от 28.04.2024</div>
+            <div>1 товар</div>
+            <div>6990 ₽</div>
+          </div>
+        </div>
       </div>
+
+
 
     </div>
   </div>
   <shared-footer></shared-footer>
 </div>
 
-<!-- Modal -->
+<!-- Modal удалить -->
 <div *ngIf="selectedProduct" class="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50 ">
   <div class="bg-white w-[470px] h-[230px] p-14 rounded-[40px] shadow-lg relative">
 
@@ -117,9 +191,32 @@
         <button (click)="closeModal()" class="px-5 h-12 bg-white rounded-lg justify-center items-center inline-flex">
           <div class="text-[#ff60c3] text-base font-medium font-rubik leading-normal">Отмена</div>
         </button>
-        <button (click)="removeItem()" class="px-5 h-12 bg-[#115efb] rounded-lg justify-center items-center inline-flex">
+        <button (click)="removeItem()"
+          class="px-5 h-12 bg-[#115efb] rounded-lg justify-center items-center inline-flex">
           <div class="text-white text-base font-medium font-rubik leading-normal">Да, удалить</div>
         </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal оформить заказ -->
+<div *ngIf="showOrderModal" class="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-50 ">
+  <div class="bg-white w-[500px] h-[320px] p-14 rounded-[40px] shadow-lg relative">
+    <button (click)="closeOrderModal()" class="absolute top-6 right-6 text-gray-500 hover:text-gray-700">
+      <img src="/assets/icons/close_window.svg" alt="close" class="w-4 h-4">
+    </button>
+
+    <div class="flex flex-col gap-2">
+      <div>
+        <img src="/assets/icons/happyOrder.svg"/>
+      </div>
+      <p class="text-2xl font-medium font-rubik">Спасибо за заказ!</p>
+      <p class="text-base font-rubik">Номер заказа 62903.</p>
+      <p class="text-base font-rubik">Мы свяжемся с вами в течение 10 минут, чтобы уточнить удобное для вас время доставки</p>
+      <div class="flex justify-end">
+        <button type="button" (click)="closeOrderModal()" class="w-1/5 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 focus:outline-none dark:focus:ring-blue-800">Ок</button>
       </div>
     </div>
 
