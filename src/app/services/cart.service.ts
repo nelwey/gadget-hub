@@ -16,9 +16,6 @@ export class CartService {
   getCart(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
-  // getCart(): Observable<{ productId: number; quantity: number }[]> {
-  //   return this.http.get<{ productId: number; quantity: number }[]>(this.apiUrl);
-  // }
   addToCart(productId: number, quantity: number, price: number): Observable<any> {
     const newCartItem = { productId, quantity };
     this.cart.push(newCartItem);
