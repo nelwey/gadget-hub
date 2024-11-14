@@ -22,10 +22,8 @@ export class CartService {
   addToCart(productId: number, quantity: number, price: number): Observable<any> {
     const newCartItem = { productId, quantity };
     this.cart.push(newCartItem);
-
     let updatedQuantity = this.cartQuantitySource.value + 1;
     this.cartQuantitySource.next(updatedQuantity);
-    console.log("addToCart totalCart: ", this.cart);
     return this.http.post(this.apiUrl, { productId, quantity, subtotal: price });
   }
 
@@ -44,11 +42,14 @@ export class CartService {
     if (action === "increase") {
       product!.quantity++;
       this.updateCartQuantityTotal();
-    } else {
+    }
+    if (action === "decrease") {
       if (product && product.quantity > 0) {
         product!.quantity--;
+        this.updateCartQuantityTotal();
+      } if (product && product.quantity === 0) {
+        this.removeFromCart(productId);
       }
-      this.updateCartQuantityTotal();
     }
     return this.http.put(`${this.apiUrl}/update/${productId}`, { quantity, action });
   }
@@ -56,7 +57,6 @@ export class CartService {
     let updatedQuantity = this.cartQuantitySource.value;
     updatedQuantity = this.cart.reduce((total, product) => total + product.quantity, 0);
     this.cartQuantitySource.next(updatedQuantity);
-    console.log("totalCart: ", this.cart);
   }
   loadCart(): void {
     this.getCart().subscribe(cartItems => {

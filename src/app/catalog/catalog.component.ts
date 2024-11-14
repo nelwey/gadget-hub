@@ -10,6 +10,7 @@ import { CartService } from '../services/cart.service';
 import { Router } from '@angular/router';
 import { Filter } from './interfaces/filters';
 import { Color } from './interfaces/colors';
+import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 
 @Component({
   selector: 'catalog',
@@ -20,6 +21,7 @@ import { Color } from './interfaces/colors';
     HeaderComponent,
     FooterComponent,
     FormsModule,
+    NgxSliderModule
   ],
   templateUrl: './catalog.component.html',
 })
@@ -27,6 +29,26 @@ import { Color } from './interfaces/colors';
 export class CatalogComponent implements OnInit {
   constructor(private cartService: CartService, private productService: ProductService, private router: Router) { }
 
+  public typeFilters: Filter[] = [
+    { type: "Смартфоны", value: 'Smartphones' },
+    { type: "Портативная акустика", value: 'PortableAcoustics' },
+    { type: "Очки виртуальной реальности", value: 'VirtualRealityGlasses' },
+    { type: "Умные часы", value: 'SmartWatches' },
+    { type: "Другое", value: 'Other' },
+    { type: "Внешний Аккумулятор", value: 'ExternalBattery' },
+    { type: "Наушники", value: 'Headphones' },
+  ];
+  public colorFilters: Color[] = [
+    { color: "Красный", value: 'red' },
+    { color: "Желтый", value: 'yellow' },
+    { color: "Белый", value: 'white' },
+    { color: "Зеленый", value: 'green' },
+    { color: "Голубой", value: 'lightblue' },
+    { color: "Синий", value: 'blue' },
+    { color: "Фиолетовый", value: 'purple' },
+    { color: "Розовый", value: 'pink' },
+    { color: "Чёрный", value: 'black' }
+  ];
   public cartProducts: any[] = [];
   public products: Product[] = [];
   public isCartEmpty: boolean = true;
@@ -44,6 +66,16 @@ export class CatalogComponent implements OnInit {
 
   public selectedTypes: string[] = [];
 
+  minHandleValue: number = 2990;
+  maxHandleValue: number = 167890;
+  sliderOptions: Options = {
+    floor: 0,
+    ceil: 200000,
+    step: 10,
+    getSelectionBarColor: (value: number): string => { return '#00E398' },
+    getPointerColor: (value: number): string => { return '#115EFB' }
+  };
+
   ngOnInit(): void {
     this.getProducts();
     this.loadCart();
@@ -53,7 +85,7 @@ export class CatalogComponent implements OnInit {
     this.productService.getProducts().subscribe({
       next: (products: Product[]) => {
         this.products = products;
-        this.filteredProducts = [...products]; // Display all products initially
+        this.filteredProducts = [...products];
         this.updatePaginatedProducts();
       },
       error: (e) => console.error('Error fetching products:', e),
@@ -62,25 +94,17 @@ export class CatalogComponent implements OnInit {
 
 
   filterByType(): void {
-    if (this.selectedTypes.length) {
-      this.filteredProducts = this.products.filter(product =>
-        product.category && this.selectedTypes.includes(product.category)
-      );
-    } else {
-      // Show all products if no type is selected
-      this.filteredProducts = [...this.products];
-    }
-    this.currentPage = 1; // Reset to the first page when applying a new filter
-    this.updatePaginatedProducts();
+    this.filterProducts();
   }
 
   filterProducts(): void {
     this.filteredProducts = this.products.filter(product => {
       const matchesColor = !this.selectedColors.length || (product.color && this.selectedColors.includes(product.color));
       const matchesType = !this.selectedTypes.length || (product.category && this.selectedTypes.includes(product.category));
-      return matchesColor && matchesType;
+      const matchesPrice = product.price >= this.minHandleValue && product.price <= this.maxHandleValue;
+      return matchesColor && matchesType && matchesPrice;
     });
-    this.currentPage = 1; // Reset to first page when filters change
+    this.currentPage = 1;
     this.updatePaginatedProducts();
   }
 
@@ -101,32 +125,6 @@ export class CatalogComponent implements OnInit {
     }
     this.filterProducts();
   }
-
-
-
-  // toggleColor(colorValue: string): void {
-  //   if (this.selectedColors.includes(colorValue)) {
-  //     this.selectedColors = this.selectedColors.filter(color => color !== colorValue);
-  //   } else {
-  //     this.selectedColors.push(colorValue);
-  //   }
-  //   this.filterByColor();
-  // }
-
-  // filterByColor(): void {
-  //   if (this.selectedColors.length) {
-  //     this.filteredProducts = this.products.filter(product =>
-  //       product.color && this.selectedColors.includes(product.color)
-  //     );
-  //   } else {
-  //     // Show all products if no color is selected
-  //     this.filteredProducts = [...this.products];
-  //   }
-  //   this.currentPage = 1; // Reset to first page when applying a new filter
-  //   this.updatePaginatedProducts();
-  // }
-
-
 
   updatePaginatedProducts(): void {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -161,60 +159,15 @@ export class CatalogComponent implements OnInit {
       this.cartProducts = cartProducts;
     });
   }
-  minLimit: number = 200;
-  maxLimit: number = 300000;
-  minValue: number = 2990;
-  maxValue: number = 167890;
 
-  public typeFilters: Filter[] = [
-    { type: "Смартфоны", value: 'Smartphones' },
-    { type: "Портативная акустика", value: 'PortableAcoustics' },
-    { type: "Очки виртуальной реальности", value: 'VirtualRealityGlasses' },
-    { type: "Умные часы", value: 'SmartWatches' },
-    { type: "Другое", value: 'Other' },
-    { type: "Внешний Аккумулятор", value: 'ExternalBattery' },
-    { type: "Наушники", value: 'Headphones' },
-  ];
-  public colorFilters: Color[] = [
-    { color: "Красный", value: 'red' },
-    { color: "Желтый", value: 'yellow' },
-    { color: "Белый", value: 'white' },
-    { color: "Зеленый", value: 'green' },
-    { color: "Голубой", value: 'lightblue' },
-    { color: "Синий", value: 'blue' },
-    { color: "Фиолетовый", value: 'purple' },
-    { color: "Розовый", value: 'pink' },
-    { color: "Чёрный", value: 'black' }
-  ];
-
-  validateMinValue() {
-    if (this.minValue < this.minLimit) {
-      this.minValue = this.minLimit;
+  onInputChange(): void {
+    if (this.minHandleValue > this.maxHandleValue) {
+      this.minHandleValue = this.maxHandleValue;
     }
-    if (this.minValue >= this.maxValue) {
-      this.minValue = this.maxValue - 1;
+    if (this.maxHandleValue < this.minHandleValue) {
+      this.maxHandleValue = this.minHandleValue;
     }
-  }
-
-  validateMaxValue() {
-    if (this.maxValue > this.maxLimit) {
-      this.maxValue = this.maxLimit;
-    }
-    if (this.maxValue <= this.minValue) {
-      this.maxValue = this.minValue + 1;
-    }
-  }
-
-  updateMinValue() {
-    this.validateMinValue();
-  }
-
-  updateMaxValue() {
-    this.validateMaxValue();
-  }
-
-  calculatePercentage(value: number): number {
-    return ((value - this.minLimit) / (this.maxLimit - this.minLimit)) * 100;
+    this.filterProducts();
   }
 
   openModal(product: any) {
@@ -267,8 +220,16 @@ export class CatalogComponent implements OnInit {
     return false;
 
   }
-  public goToCart() {
+  goToCart() {
     this.router.navigateByUrl('/cart');
+  }
+  resetFilters(): void {
+    this.selectedColors = [];
+    this.selectedTypes = [];
+    this.minHandleValue = 2990;
+    this.maxHandleValue = 167890;
+
+    this.filterProducts();
   }
 }
 
